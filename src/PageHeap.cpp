@@ -77,6 +77,7 @@ bool PageHeap::refillPageHeap(size_t page_size) {
     for(size_t idx = start; idx < (start + length); idx++) {
         pm->set(idx, new_span);
     }
+    total_mapped_pages += std::max(page_size, PAGEHEAP_REFILL_SIZE / K_PAGE_SIZE);
     pushPages(new_span->num_pages, new_span);
     return true;
 }

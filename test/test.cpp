@@ -142,7 +142,6 @@ TEST_CASE("Testing if PageHeap can allocate pages") {
     std::vector<size_t> alloc_sizes(50);
     for(auto i = 0; i < 50; i++) {
         alloc_sizes[i] = dis(gen);
-        total_pages += alloc_sizes[i];
     }
     std::vector<Span*> spans;
     for(auto n : alloc_sizes) {
@@ -166,7 +165,16 @@ TEST_CASE("Testing if PageHeap can allocate pages") {
     }
 
     Span** free_lists = ph.getFreeLists();
-    CHECK(free_lists[MAX_PAGEHEAP_IDX]);
-    CHECK(free_lists[MAX_PAGEHEAP_IDX]->num_pages == total_pages);
+    size_t total_allocated = 0;
+    for(int i = 0; i <= MAX_PAGEHEAP_IDX; i++) {
+        if(free_lists[i]) {
+            Span* w = free_lists[i];
+            while(w) {
+                total_allocated += w->num_pages;
+                w = w->next;
+            }
+        }
+    }
+    CHECK(total_allocated == ph.total_mapped_pages);
 
 }
