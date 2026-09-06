@@ -21,11 +21,11 @@ PageMap& page_map() {
 }
 
 PageHeap& page_heap() {
-    if(!g_page_heap.mem_arena) {
+    if(!g_page_heap.getMetaArena()) {
         g_page_heap.init_arena(&meta_arena());
     }
-    if(!g_page_heap.pm) {
-        g_page_heap.pm = &page_map();
+    if(!g_page_heap.getPageMap()) {
+        g_page_heap.init_pm(&page_map());
     }
     return g_page_heap;
 }

@@ -131,7 +131,7 @@ TEST_CASE("Testing if PageHeap can allocate pages") {
     PageHeap ph; 
     ph.init_arena(&arena);
     pm.init_arena(&arena);
-    ph.pm = &pm;
+    ph.init_pm(&pm);
 
     std::random_device rd;
     std::mt19937 gen(rd());

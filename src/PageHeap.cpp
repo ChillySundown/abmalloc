@@ -5,6 +5,18 @@ void PageHeap::init_arena(MetaArena* arena) {
     mem_arena = arena;
 }
 
+void PageHeap::init_pm(PageMap* map) {
+    pm = map;
+}
+
+MetaArena* PageHeap::getMetaArena() {
+    return mem_arena;
+}
+
+PageMap* PageHeap::getPageMap() {
+    return pm;
+}
+
 Span** PageHeap::getFreeLists() {
     return free_page_lists;
 }
