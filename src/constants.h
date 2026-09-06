@@ -20,7 +20,8 @@ constexpr size_t PAGEMAP_ROOT_SIZE = 1ull << PAGEMAP_ROOT_BITS;
 constexpr size_t PAGEMAP_BRANCH_SIZE = 1ull << PAGEMAP_BRANCH_BITS;
 constexpr size_t PAGEMAP_LEAF_SIZE = 1ull << PAGEMAP_LEAF_BITS;
 
-constexpr int size_classes[] = {8, 16, 32, 64, 128, 256, 512, 1024};
+constexpr size_t size_classes[] = {8, 16, 32, 64, 128, 256, 512, 1024};
+static const std::unordered_map<size_t, size_t> free_list_refill_sizes = {{8, 1}, {16, 1}, {32, 1}, {64, 1}, {128, 1}, {256, 2}, {512, 2}, {1024, 2}};
 constexpr size_t HEAP_SIZE {1024 * 1024}; //Represents the size of our heap in bytes (128 to be exact)
 //alignas(8) static unsigned char heap[HEAP_SIZE]; //Our actual pool of memory
 constexpr size_t PAGEHEAP_REFILL_SIZE {2048 * K_PAGE_SIZE};

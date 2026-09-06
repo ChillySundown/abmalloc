@@ -5,9 +5,11 @@
 #include "PageHeap.h"
 class CentralFreeList {
     private:
-        Span* CentralFreeList {nullptr};
+        Span* free_list {nullptr};
         size_t size_class;
-        FreeBlock* popBlock(FreeBlock* list);
+        FreeBlock* popBlock(FreeBlock*& list);
+        void init_span_objects(Span* s);
+        void refillFreeList();
 
         MetaArena* mem_arena {nullptr};
         PageMap* pm {nullptr};
@@ -18,7 +20,8 @@ class CentralFreeList {
         void init_pm(PageMap* map);
         void init_ph(PageHeap* heap);
 
+
         //Assume that requests for large objects skips free list entirely
-        FreeBlock* popFromList(size_t size);
+        FreeBlock* popFromList();
         void returnToList(FreeBlock* blk);
 };

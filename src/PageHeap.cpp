@@ -145,6 +145,7 @@ void PageHeap::unlinkPages(Span* s) {
 
 void PageHeap::retireSpan(Span* s) {
     s->status = SpanState::FREE;
+    s->objects = nullptr;
     pushFreeSpan(s);
 }
 
@@ -192,6 +193,9 @@ void PageHeap::pageFree(Span* pages) {
     if(!pages) {return;}
     else if(pages->status == SpanState::FREE) {return;}
     pages->status = SpanState::FREE;
+    pages->objects = nullptr;
+    pages->current_count = 0;
+    pages->size_class = 0;
 
     Span* current = pages;
     if(pages->starting_page_id > 0) { //Backwards merge

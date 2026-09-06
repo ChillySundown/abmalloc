@@ -17,6 +17,7 @@ struct Span {
     SpanState status {SpanState::FREE};
     FreeBlock* objects {nullptr};
     size_t size_class;
+    size_t current_count;
 };
 
 #endif
