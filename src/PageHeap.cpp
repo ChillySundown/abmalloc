@@ -57,6 +57,7 @@ void PageHeap::pushPages(size_t page_size, Span* s) {
     assert(page_size != 0);
     size_t index = std::min(page_size-1, MAX_PAGEHEAP_IDX);
     s->next = free_page_lists[index]; //Might cause index error
+    s->prev = nullptr;
     if(free_page_lists[index]) {
         free_page_lists[index]->prev = s;
     }
@@ -81,15 +82,12 @@ bool PageHeap::refillPageHeap(size_t page_size) {
 
     new_span->starting_page_id = start;
     new_span->num_pages = length;
-    if(req_bytes == (page_size * K_PAGE_SIZE)) {
-        new_span->status = SpanState::LARGE_OBJ;
-    }
     //All spans default state is SpanState::FREE
 
     for(size_t idx = start; idx < (start + length); idx++) {
         pm->set(idx, new_span);
     }
-    total_mapped_pages += std::max(page_size, PAGEHEAP_REFILL_SIZE / K_PAGE_SIZE);
+    total_mapped_pages += length;
     pushPages(new_span->num_pages, new_span);
     return true;
 }
@@ -103,7 +101,7 @@ Span* PageHeap::popPages(size_t index, size_t page_length) {
     //If num_pages is free, return the span
     if(s->num_pages == page_length) {
         unlinkPages(s);
-        //s->status = SpanState::IN_USE; let caller define status
+        s->status = SpanState::IN_USE; //let caller define status
         return s;
     } else { //If greater page size than requested, carve from span and return new span
         while(s && s->num_pages < page_length) {
@@ -111,10 +109,10 @@ Span* PageHeap::popPages(size_t index, size_t page_length) {
         }
     }
     Span* new_span = popFreeSpan();
-    if(!new_span) {return nullptr;}
+    if(!s || !new_span) {return nullptr;}
     new_span->starting_page_id = (s->starting_page_id + s->num_pages) - page_length;
     new_span->num_pages = page_length;
-    //new_span->status = SpanState::IN_USE;
+    new_span->status = SpanState::IN_USE;
     //Maps each page in the span to the new_span
     for(size_t idx = new_span->starting_page_id; idx < new_span->starting_page_id + new_span->num_pages; idx++) {
         global_map->set(idx, new_span);
@@ -134,13 +132,19 @@ void PageHeap::unlinkPages(Span* s) {
     size_t idx = std::min(s->num_pages-1, MAX_PAGEHEAP_IDX);
     if(s == free_page_lists[idx]) {
         free_page_lists[idx] = s->next; //Uhh what if we keep moving head forward and have memory leak
+        if(free_page_lists[idx]) {
+            free_page_lists[idx]->prev = nullptr;
+        }
     } else {
         Span* prev_span = s->prev;
         prev_span->next = s->next;
-        if(s->next && s->next->prev) {
+        if(s->next) {
             s->next->prev = prev_span;
         }
     }
+    //Cleaning up links to other spans
+    s->next = nullptr;
+    s->prev = nullptr;
 }
 
 void PageHeap::retireSpan(Span* s) {
@@ -161,20 +165,16 @@ void PageHeap::mergeSpans(Span* s, Span* r) {
     }
 }
 Span* PageHeap::pageAlloc(size_t page_size) {
-    if(page_size <= 0) {return nullptr;}
+    if(page_size == 0) {return nullptr;}
     size_t size_index = std::min(page_size - 1, MAX_PAGEHEAP_IDX);
-    if(size_index > 255) { size_index = 255;} //List of large pages
-    
-    if(free_page_lists[size_index]) { //First: try to pop from respective page list
-        return popPages(size_index, page_size);
-    } else {
-        while(size_index <= 255) { //Second: Iterate through all larger page lists until a free page is found
-            if(free_page_lists[size_index]) {
-                return popPages(size_index, page_size);
-            } else {
-                size_index += 1;
-            }
-        }
+    //if(size_index > 255) { size_index = 255;} //List of large pages
+    Span* popped = nullptr;
+    while(size_index <= MAX_PAGEHEAP_IDX) {//Iterate through all larger page lists until a free page is found
+        if(free_page_lists[size_index]) {
+            popped = popPages(size_index, page_size);
+            if(popped) {return popped;}
+        } 
+        size_index += 1;
     }
 
     //If the pageheap is empty
@@ -217,4 +217,25 @@ void PageHeap::pageFree(Span* pages) {
     }
     pushPages(current->num_pages, current);
         //Do I need to call e
+}
+
+void PageHeap::validateHeap() {
+    size_t n_pages = 0;
+    for(auto* head : free_page_lists) {
+        n_pages += 1;
+        if(!head) {continue;}
+        assert(!head->prev); //Checks to see that head has no previous span
+        auto* s = head;
+        while(s) {
+            if(s->next) {
+                assert(s->next->prev == s); //If not head or last span, assume that linked list is doubly
+            }
+            if(n_pages <= 254) {
+                assert(s->num_pages == n_pages);
+            } else {
+                assert(s->num_pages >= 256);
+            }
+            s = s->next;
+        }
+    }
 }

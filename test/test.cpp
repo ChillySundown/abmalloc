@@ -2,6 +2,7 @@
 #include "doctest.h"
 #include "globals.h"
 #include "PageMap.h"
+#include "CentralFreeList.h"
 #include <cmath>
 #include <random>
 #include <algorithm>
@@ -146,6 +147,7 @@ TEST_CASE("Testing if PageHeap can allocate pages") {
     std::vector<Span*> spans;
     for(auto n : alloc_sizes) {
         auto* s = ph.pageAlloc(n);
+        ph.validateHeap();
         if(n == 0) {    
             CHECK(!s);  
         }
@@ -162,6 +164,7 @@ TEST_CASE("Testing if PageHeap can allocate pages") {
         int idx = idxs.back();
         ph.pageFree(spans[idx]);
         idxs.pop_back();
+        ph.validateHeap();
     }
 
     Span** free_lists = ph.getFreeLists();
@@ -176,5 +179,37 @@ TEST_CASE("Testing if PageHeap can allocate pages") {
         }
     }
     CHECK(total_allocated == ph.total_mapped_pages);
+}
 
+TEST_CASE("Testing in Central Free List can pop and return pages") {
+    MetaArena arena;
+    PageMap pm;
+    PageHeap ph;
+    pm.init_arena(&arena);
+    ph.init_arena(&arena);
+    ph.init_pm(&pm);
+
+
+    CentralFreeList lists[8];
+    for(int i = 0; i < 8; i++) {
+        lists[i].init_arena(&arena);
+        lists[i].init_pm(&pm);
+        lists[i].init_ph(&ph);
+        lists[i].set_size_class(size_classes[i]);
+    }
+
+    for(auto l : lists) {
+        FreeBlock* blk = l.popFromList();
+        FreeBlock* blk2 = l.popFromList();
+        CHECK(blk != nullptr);
+        CHECK(blk2 != nullptr);
+        l.returnToList(blk);
+        FreeBlock* blk3 = l.popFromList();
+        CHECK(blk3);
+        l.returnToList(blk3);
+        FreeBlock* blk4 = l.popFromList();
+        CHECK(blk4);
+        l.returnToList(blk2);
+        l.returnToList(blk4);
+    }
 }

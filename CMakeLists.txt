@@ -10,6 +10,7 @@ set(LIB_SOURCES
     src/MetaArena.cpp 
     src/PageHeap.cpp 
     src/PageMap.cpp 
+    src/CentralFreeList.cpp
 )
 
 add_library(abmalloc_lib STATIC ${LIB_SOURCES})

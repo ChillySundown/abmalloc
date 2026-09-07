@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <unordered_map>
 
 constexpr int K_PAGE_SHIFT {14};
 constexpr size_t K_PAGE_SIZE {1 << K_PAGE_SHIFT};

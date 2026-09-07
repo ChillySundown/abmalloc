@@ -22,7 +22,7 @@ void CentralFreeList::init_span_objects(Span* s) {
 
     s->size_class = size_class;
     s->objects = reinterpret_cast<FreeBlock*>(s->starting_page_id << K_PAGE_SHIFT);
-    s->status = SpanState::IN_USE;
+    //s->status = SpanState::IN_USE;
     s->current_count = 0;
 
     FreeBlock* w = s->objects;
@@ -109,5 +109,8 @@ void CentralFreeList::returnToList(FreeBlock* blk) {
         parent_span->current_count--;
     }
     
+    //TODO:
+    //Write tests for CentralFreeList
+    //Figure out refactors to enable large obj allocation in pageheap
     
 }

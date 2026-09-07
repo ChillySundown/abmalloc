@@ -30,6 +30,8 @@ class PageHeap {
         MetaArena* getMetaArena();
         PageMap* getPageMap();
 
+        void validateHeap();
+
         
         Span* pageAlloc(size_t num_pages);
         void pageFree(Span* pages);
