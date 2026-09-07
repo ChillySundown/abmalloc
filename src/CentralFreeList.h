@@ -6,10 +6,13 @@
 class CentralFreeList {
     private:
         Span* free_list {nullptr};
-        size_t size_class;
+        size_t size_class {0};
         FreeBlock* popBlock(FreeBlock*& list);
+        void pushBlock(FreeBlock*& head, FreeBlock* obj);
+
+        void unlinkSpan(Span* s);
         void init_span_objects(Span* s);
-        void refillFreeList();
+        bool refillFreeList();
 
         MetaArena* mem_arena {nullptr};
         PageMap* pm {nullptr};

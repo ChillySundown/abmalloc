@@ -103,7 +103,7 @@ Span* PageHeap::popPages(size_t index, size_t page_length) {
     //If num_pages is free, return the span
     if(s->num_pages == page_length) {
         unlinkPages(s);
-        s->status = SpanState::IN_USE;
+        //s->status = SpanState::IN_USE; let caller define status
         return s;
     } else { //If greater page size than requested, carve from span and return new span
         while(s && s->num_pages < page_length) {
@@ -114,7 +114,7 @@ Span* PageHeap::popPages(size_t index, size_t page_length) {
     if(!new_span) {return nullptr;}
     new_span->starting_page_id = (s->starting_page_id + s->num_pages) - page_length;
     new_span->num_pages = page_length;
-    new_span->status = SpanState::IN_USE;
+    //new_span->status = SpanState::IN_USE;
     //Maps each page in the span to the new_span
     for(size_t idx = new_span->starting_page_id; idx < new_span->starting_page_id + new_span->num_pages; idx++) {
         global_map->set(idx, new_span);
@@ -145,7 +145,7 @@ void PageHeap::unlinkPages(Span* s) {
 
 void PageHeap::retireSpan(Span* s) {
     s->status = SpanState::FREE;
-    s->objects = nullptr;
+    //s->objects = nullptr;
     pushFreeSpan(s);
 }
 
