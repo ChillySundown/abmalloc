@@ -23,6 +23,17 @@ size_t findNPagesPerClass(size_t size_class) {
     }
 }
 
+MetaArena* CentralFreeList::get_arena() {
+    return mem_arena;
+}
+
+PageMap* CentralFreeList::get_map() {
+    return pm;
+}
+
+PageHeap* CentralFreeList::get_heap() {
+    return ph;
+}
 
 void CentralFreeList::set_size_class(size_t size) {
     size_class = size;
@@ -79,9 +90,7 @@ void CentralFreeList::unlinkSpan(Span* s) {
 }
 
 bool CentralFreeList::refillFreeList() {
-    if(!ph) {
-        init_ph(&page_heap());
-    } 
+    assert(ph);
     //No need to worry about misses, because every size class is mapped
     size_t n_pages = findNPagesPerClass(size_class);
     assert(n_pages != 0);

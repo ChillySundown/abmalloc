@@ -1,6 +1,5 @@
 #include "MetaArena.h"
 #include "constants.h"
-#include "globals.h"
 #include "PageMap.h"
 #include "PageHeap.h"
 
@@ -23,6 +22,10 @@ class CentralFreeList {
         void init_arena(MetaArena* arena);
         void init_pm(PageMap* map);
         void init_ph(PageHeap* heap);
+
+        MetaArena* get_arena();
+        PageMap* get_map();
+        PageHeap* get_heap();
 
 
         //Assume that requests for large objects skips free list entirely
