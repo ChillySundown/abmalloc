@@ -55,6 +55,7 @@ void PageHeap::pushFreeSpan(Span* s) {
 //Pushes a Span onto free_list[index]
 void PageHeap::pushPages(size_t page_size, Span* s) {
     assert(page_size != 0);
+    assert(page_size == s->num_pages);
     size_t index = std::min(page_size-1, MAX_PAGEHEAP_IDX);
     s->next = free_page_lists[index]; //Might cause index error
     s->prev = nullptr;
@@ -120,6 +121,7 @@ Span* PageHeap::popPages(size_t index, size_t page_length) {
     
     //Relocate span to new region
     unlinkPages(s);
+    assert(s->num_pages > page_length);
     s->num_pages -= page_length; 
     pushPages(s->num_pages, s);
 
@@ -230,9 +232,10 @@ void PageHeap::validateHeap() {
             if(s->next) {
                 assert(s->next->prev == s); //If not head or last span, assume that linked list is doubly
             }
-            if(n_pages <= 254) {
+            if(n_pages <= 255) {
                 assert(s->num_pages == n_pages);
             } else {
+                //std::cout << s->num_pages << std::endl;
                 assert(s->num_pages >= 256);
             }
             s = s->next;
