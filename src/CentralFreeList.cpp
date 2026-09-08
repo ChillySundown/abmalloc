@@ -1,5 +1,29 @@
 #include "CentralFreeList.h"
 
+size_t findNPagesPerClass(size_t size_class) {
+    switch(size_class) {
+        case 8:
+            return 1;
+        case 16:
+            return 1;
+        case 32:
+            return 1;
+        case 64:
+            return 1;
+        case 128:
+            return 1;
+        case 256:
+            return 2;
+        case 512:
+            return 2;
+        case 1024:
+            return 2;
+        default:
+            return 0;
+    }
+}
+
+
 void CentralFreeList::set_size_class(size_t size) {
     size_class = size;
 }
@@ -59,7 +83,9 @@ bool CentralFreeList::refillFreeList() {
         init_ph(&page_heap());
     } 
     //No need to worry about misses, because every size class is mapped
-    Span* refill = ph->pageAlloc(free_list_refill_sizes.at(size_class));
+    size_t n_pages = findNPagesPerClass(size_class);
+    assert(n_pages != 0);
+    Span* refill = ph->pageAlloc(n_pages);
     if(!refill) {return false;}
     init_span_objects(refill);
 

@@ -11,6 +11,7 @@ set(LIB_SOURCES
     src/PageHeap.cpp 
     src/PageMap.cpp 
     src/CentralFreeList.cpp
+    src/TransferCache.cpp
 )
 
 add_library(abmalloc_lib STATIC ${LIB_SOURCES})
