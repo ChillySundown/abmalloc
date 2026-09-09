@@ -4,8 +4,8 @@
 static MetaArena g_meta_arena;
 static PageMap g_page_map;
 static PageHeap g_page_heap;
-static CentralFreeList* g_free_lists[8]; //One Free List for each size class
-static TransferCache* g_transfer_caches[8]; //One transfer cache for each size class
+static CentralFreeList g_free_lists[8]; //One Free List for each size class
+static TransferCache g_transfer_caches[8]; //One transfer cache for each size class
 
 
 //Block* heap_head {nullptr};
@@ -33,7 +33,7 @@ PageHeap& page_heap() {
 
 CentralFreeList& cfl(size_t size_class) {
     size_t idx = (std::find(size_classes, size_classes + 8, size_class) - size_classes);
-    CentralFreeList* free_list = g_free_lists[idx];
+    CentralFreeList& free_list = g_free_lists[idx];
     return free_list;
 }
 

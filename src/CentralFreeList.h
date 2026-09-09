@@ -1,3 +1,6 @@
+#ifndef CENTRAL_FREE_LIST_H
+#define CENTRAL_FREE_LIST_H
+
 #include "MetaArena.h"
 #include "constants.h"
 #include "PageMap.h"
@@ -32,3 +35,5 @@ class CentralFreeList {
         FreeBlock* popFromList();
         void returnToList(FreeBlock* blk);
 };
+
+#endif

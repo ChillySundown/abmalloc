@@ -13,8 +13,9 @@ constexpr size_t K_PAGE_SIZE {1 << K_PAGE_SHIFT};
 constexpr int PAGEMAP_ROOT_BITS {12};
 constexpr int PAGEMAP_BRANCH_BITS {9};
 constexpr int PAGEMAP_LEAF_BITS {13};
+constexpr int PAGEMAP_TOTAL_BITS {34};
 
-static_assert(PAGEMAP_ROOT_BITS + PAGEMAP_BRANCH_BITS + PAGEMAP_LEAF_BITS == 34);
+static_assert(PAGEMAP_ROOT_BITS + PAGEMAP_BRANCH_BITS + PAGEMAP_LEAF_BITS == PAGEMAP_TOTAL_BITS);
 
 constexpr size_t PAGEMAP_ROOT_SIZE = 1ull << PAGEMAP_ROOT_BITS;
 constexpr size_t PAGEMAP_BRANCH_SIZE = 1ull << PAGEMAP_BRANCH_BITS;
@@ -26,8 +27,7 @@ constexpr size_t HEAP_SIZE {1024 * 1024}; //Represents the size of our heap in b
 //alignas(8) static unsigned char heap[HEAP_SIZE]; //Our actual pool of memory
 constexpr size_t PAGEHEAP_REFILL_SIZE {2048 * K_PAGE_SIZE};
 constexpr size_t MAX_PAGEHEAP_IDX = 255;
-
-static const size_t page_size = sysconf(_SC_PAGESIZE);
+//static const size_t page_size = sysconf(_SC_PAGESIZE);
 constexpr size_t K_MAX_SIZE = static_cast<size_t>(size_classes[7]);
 
 // struct Block {

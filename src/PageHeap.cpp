@@ -105,10 +105,17 @@ Span* PageHeap::popPages(size_t index, size_t page_length) {
         s->status = SpanState::IN_USE; //let caller define status
         return s;
     } else { //If greater page size than requested, carve from span and return new span
-        while(s && s->num_pages < page_length) {
+        while(s && s->num_pages <= page_length) {
+            if(s->num_pages == page_length) {
+                unlinkPages(s);
+                s->status = SpanState::IN_USE;
+                return s;
+            }
             s = s->next;
         }
     }
+
+
     Span* new_span = popFreeSpan();
     if(!s || !new_span) {return nullptr;}
     new_span->starting_page_id = (s->starting_page_id + s->num_pages) - page_length;

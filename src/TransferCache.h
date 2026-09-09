@@ -1,3 +1,6 @@
+#ifndef TRANSFER_CACHE_H
+#define TRANSFER_CACHE_H
+
 #include "CentralFreeList.h"
 #include <mutex>
 class TransferCache {
@@ -19,3 +22,5 @@ class TransferCache {
         void returnToList(FreeBlock* block, size_t n_blocks);
 
 };
+
+#endif

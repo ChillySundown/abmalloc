@@ -99,6 +99,9 @@ bool CentralFreeList::refillFreeList() {
     init_span_objects(refill);
 
     refill->next = free_list;
+    if(free_list) {
+        free_list->prev = refill;
+    }
     free_list = refill;
     return true;
 }
@@ -135,13 +138,13 @@ void CentralFreeList::returnToList(FreeBlock* blk) {
     assert(parent_span->size_class == size_class);
     pushBlock(parent_span->objects, blk); 
 
+    parent_span->current_count--;
+    assert(parent_span->current_count >= 0);
     //If all objects in span are sitting in free_list, return to pageheap
     if(parent_span->current_count == 0) {
         unlinkSpan(parent_span);
         parent_span->objects = nullptr; //Clears out objects
         ph->pageFree(parent_span);
-    } else { //Decrement num_checked out
-        parent_span->current_count--;
     }
     
     //TODO:

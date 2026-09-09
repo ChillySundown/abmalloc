@@ -3,11 +3,12 @@
 
 #include "Span.h"
 #include "PageMap.h"
+#include <mutex>
 
 
 class PageHeap {
     private:
-        //Something something mutex
+        std::mutex lock;
         Span* free_page_lists[256] {nullptr}; // idx = 0 - 1 page, idx = 254 - 255 pages, idx = 255 - 256<= pages
         Span* free_spans {nullptr};
         MetaArena* mem_arena {nullptr};
